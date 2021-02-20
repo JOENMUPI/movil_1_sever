@@ -8,7 +8,7 @@ module.exports = {
     // Select
     getMenuById: `WITH RECURSIVE parents AS (SELECT * FROM ${ table } WHERE sub_menu_ide = $1 
     UNION ALL SELECT ${ table }.* FROM ${ table }
-    JOIN parents ON ${ table }.sub_menu_ide = parents.sub_menu_ude) SELECT * FROM parents`,
+    JOIN parents ON ${ table }.parent_sub_menu_ide = parents.sub_menu_ude) SELECT * FROM parents`,
     
     
     // Update
