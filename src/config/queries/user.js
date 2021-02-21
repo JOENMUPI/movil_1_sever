@@ -6,24 +6,18 @@ module.exports = {
     
     
     // Select
-    getAllUsers: `SELECT u.*, g.gender_des, r.role_des FROM ${ table } AS u 
-    JOIN gender AS g ON g.gender_ide = u.gender_ide 
-    JOIN role AS r ON u.role_ide = r.role_ide`,
-    getUserById: `SELECT u.*, g.gender_des, r.role_des FROM ${ table } AS u 
-    JOIN gender AS g ON g.gender_ide = u.gender_ide 
-    JOIN role AS r ON u.role_ide = r.role_ide WHERE u.user_ide = $1`,
-    getUserByEmail: `SELECT u.*, g.gender_des, r.role_des FROM ${ table } AS u 
-    JOIN gender AS g ON g.gender_ide = u.gender_ide 
-    JOIN role AS r ON u.role_ide = r.role_ide WHERE u.user_ema = $1`,
-    getUsersByEmailAndPassword: `SELECT u.*, g.gender_des, r.role_des FROM ${ table } AS u 
-    JOIN gender AS g ON g.gender_ide = u.gender_ide 
-    JOIN role AS r ON u.role_ide = r.role_ide WHERE u.user_email = $1 AND u.user_pas = $2`,
-    getUsersByRole: `SELECT u.*, g.gender_des, r.role_des FROM ${ table } AS u 
-    JOIN gender AS g ON g.gender_ide = u.gender_ide 
-    JOIN role AS r ON u.role_ide = r.role_ide WHERE u.role_ide = $1`,
-    getUsersByGender: `SELECT u.*, g.gender_des, r.role_des FROM ${ table } AS u 
-    JOIN gender AS g ON g.gender_ide = u.gender_ide 
-    JOIN role AS r ON u.role_ide = r.role_ide WHERE u.gender_ide = $1`,
+    getAllUsers: `SELECT u.*, g.gender_des,  FROM ${ table } AS u 
+    JOIN gender AS g ON g.gender_ide = u.gender_ide`,
+    getUserById: `SELECT u.*, g.gender_des FROM ${ table } AS u 
+    JOIN gender AS g ON g.gender_ide = u.gender_ide WHERE u.user_ide = $1`,
+    getUserByEmail: `SELECT u.*, g.gender_des ${ table } AS u 
+    JOIN gender AS g ON g.gender_ide = u.gender_ide WHERE u.user_ema = $1`,
+    getUsersByEmailAndPassword: `SELECT u.*, g.gender_des, FROM ${ table } AS u 
+    JOIN gender AS g ON g.gender_ide = u.gender_ide WHERE u.user_email = $1 AND u.user_pas = $2`,
+    getUsersByRole: `SELECT u.*, g.gender_des FROM ${ table } AS u 
+    JOIN gender AS g ON g.gender_ide = u.gender_ide WHERE u.role_ide = $1`,
+    getUsersByGender: `SELECT u.*, g.gender_des FROM ${ table } AS u 
+    JOIN gender AS g ON g.gender_ide = u.gender_ide WHERE u.gender_ide = $1`,
     
 
     // Update

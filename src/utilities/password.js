@@ -34,27 +34,39 @@ const checkPass = (pass, confirmPass) => {
     }
 }
 
-const encryptPass = (pass, callBack) => {
-    bcryt.genSalt(10, (err, salt) => {
-        if(err) { 
-            return callBack(err);
+const encryptPass = async (pass, callBack) => {
+    const salt = await bcryt.genSalt(10);
+    
+    if(salt) {
+        const hash = await bcryt.hash(pass, salt);
+
+        if(hash) {
+            return callBack(null, hash);
         
         } else {
-            bcryt.hash(pass, salt, (err, hash) => {
-                if(err) { 
-                    return callBack (err);
-                    
-                } else { 
-                    return callBack(null, hash);
-                }
-            });
+            return callBack('Error on hash');    
         }
-    });
+    
+    } else {
+        return callBack('Error on salt');
+    }
 }
 
+const comparePass = async (pass, hash) => {
+    const match = await bcryt.compare(pass, hash); 
+    
+    if(match) {
+        return true;
+    
+    } else {
+        return false;
+    }
+
+}
 
 // Export
 module.exports = {
     encryptPass,
-    checkPass
+    checkPass,
+    comparePass
 }

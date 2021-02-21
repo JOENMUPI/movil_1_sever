@@ -8,3 +8,13 @@ module.exports = {
     idleTimeoutMillis: 30000,
     ssl: { rejectUnauthorized: false }
 };
+
+/*{
+    user: 'postgres',
+    host: 'localhost',
+    database: 'test',
+    password: '1322052426',
+    port:  5432,
+    max: 10,
+    idleTimeoutMillis: 30000,
+};*/

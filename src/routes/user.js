@@ -7,11 +7,11 @@ const endPoint = '/user';
 // Get
 router.get(endPoint, user.getUser);
 router.get(`${ endPoint }/:id`, user.getUserById);
-
+router.get(`${ endPoint }/singout`, /*function*/);
 
 // Post
 router.post(`${ endPoint }/singup`, user.createUsers);
-router.post(`${ endPoint }/login`, user.login);
+router.post(`${ endPoint }/singin`, user.login);
 
 
 // Put
