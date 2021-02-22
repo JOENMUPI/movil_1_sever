@@ -16,5 +16,5 @@ module.exports = {
     
 
     // Delete
-    deleteGenderById: `DELETE FROM ${ table } WHERE type_input_form_ide = $1`
+    deleteTypeInputById: `DELETE FROM ${ table } WHERE type_input_form_ide = $1`
 };

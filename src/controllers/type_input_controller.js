@@ -1,6 +1,6 @@
 const Pool = require('pg').Pool;
 const dbConfig = require('../config/db_config');
-const dbQueriesGender = require('../config/queries/gender');
+const dbQueriesTI = require('../config/queries/type_input');
 const field = require('../utilities/field');
 const auth = require('../utilities/auth');
 
@@ -13,34 +13,34 @@ const newReponse = (message, typeResponse, body) => {
     return { message, typeResponse, body }
 }
 
-const dataToGender = (rows) => {
-    const genders = [];
+const dataToTI = (rows) => {
+    const TIs = [];
         
     rows.forEach(element => {
-        genders.push({  
-            description: element.gender_des,
-            id: element.gender_ide,
+        TIs.push({  
+            description: element.type_input_form_des,
+            id: element.type_input_form,
         });
     });
 
-    return genders;
+    return TIs;
 }
 
 
 // Logic
-const getGender = async (req, res) => {
+const getTypeInput = async (req, res) => {
     const { userId } = req.params;
 
     if(await auth.AuthAdmin(userId)) { 
-        const data = await pool.query(dbQueriesGender.getAllGenders);
+        const data = await pool.query(dbQueriesTI.getAllTypeInputs);
     
-        if(data) {
+        if(data) { 
             (data.rows.length > 0)
-            ? res.json(newReponse('All genders', 'Success', dataToGender(data.rows)))
-            : res.json(newReponse('Without genders', 'Success', { }));
+            ? res.json(newReponse('All TIs', 'Success', dataToTI(data.rows)))
+            : res.json(newReponse('Without TIs', 'Success', { }));
         
         } else {
-            res.json(newReponse('Error searhing the gender', 'Error', { }));
+            res.json(newReponse('Error searhing the TIs', 'Error', { }));
         }
 
     } else { 
@@ -48,19 +48,19 @@ const getGender = async (req, res) => {
     }
 }
 
-const getGenderById = async (req, res) => {
-    const { userId, genderId } = req.params;
+const getTypeInputById = async (req, res) => {
+    const { userId, typeInputId } = req.params;
     
     if(await auth.AuthAdmin(userId)) {
-        const data = await pool.query(dbQueriesGender.getGenderById, [ genderId ]);
+        const data = await pool.query(dbQueriesTI.getTypeInputById, [ typeInputId ]);
     
         if(data) {
             (data.rows.length > 0) 
-            ? res.json(newReponse('Gender found', 'Success', dataToGender(data.rows)))
-            : res.json(newReponse('Gender not found', 'Error', { }));
+            ? res.json(newReponse('TI found', 'Success', dataToTI(data.rows)))
+            : res.json(newReponse('TI not found', 'Error', { }));
 
         } else {
-            res.json(newReponse('Error searching gender with id', 'Error', { }));
+            res.json(newReponse('Error searching TI with id', 'Error', { }));
         }
 
     } else {
@@ -68,7 +68,7 @@ const getGenderById = async (req, res) => {
     }
 }
 
-const createGender = async (req, res) => {  
+const createTypeInput = async (req, res) => {  
     const { description } = req.body;
     const { userId } = req.params;
     const errors = [];
@@ -82,11 +82,11 @@ const createGender = async (req, res) => {
             res.json(newReponse('Errors detected', 'fail', { errors }));
         
         } else { 
-            const data = await pool.query(dbQueriesGender.createGender, [ description ]);
+            const data = await pool.query(dbQueriesTI.createTypeInput, [ description ]);
                             
             (data)
-            ? res.json(newReponse('Gender created', 'Success', { }))
-            : res.json(newReponse('Error create gender', 'Error', { }));
+            ? res.json(newReponse('TI created', 'Success', { }))
+            : res.json(newReponse('Error create TI', 'Error', { }));
         }
 
     } else {
@@ -94,9 +94,9 @@ const createGender = async (req, res) => {
     }
 }
 
-const updateGenderById = async (req, res) => {
+const updateTypeInputById = async (req, res) => {
     const { description } = req.body;
-    const { genderId, userId } = req.params; 
+    const { typeInputId, userId } = req.params; 
     const errors = [];
 
     if(await auth.AuthAdmin(userId)) {
@@ -107,10 +107,10 @@ const updateGenderById = async (req, res) => {
             res.json(newReponse('Errors detected', 'fail', { errors }));
         
         } else {
-            const data = await pool.query(dbQueriesGender.updateGenderById, [ description, genderId ]);
+            const data = await pool.query(dbQueriesTI.updateTypeInputById, [ description, typeInputId ]);
                         
             (data)
-            ? res.json(newReponse('Gender updated', 'Success', { }))
+            ? res.json(newReponse('TI updated', 'Success', { }))
             : res.json(newReponse('Error on update', 'Error', { }));       
         }
 
@@ -119,13 +119,14 @@ const updateGenderById = async (req, res) => {
     }
 }
 
-const deleteGenderById = async (req, res) => {
-    const { genderId, userId } = req.params;
-    const data = await pool.query(dbQueriesGender.deleteGenderById, [ genderId ]);
+const deleteTypeInputById = async (req, res) => {
+    const { typeInputId, userId } = req.params;
     
-    if(await auth.AuthAdmin(userId)) {
+    if(await auth.AuthAdmin(userId)) { 
+        const data = await pool.query(dbQueriesTI.deleteTypeInputById, [ typeInputId ]);
+        
         (data)
-        ? res.json(newReponse('Gender deleted successfully', 'Success', { }))
+        ? res.json(newReponse('TI deleted successfully', 'Success', { }))
         : res.json(newReponse('Error on delete with id', 'Error', { }));
     
     } else {
@@ -136,9 +137,9 @@ const deleteGenderById = async (req, res) => {
 
 // Export
 module.exports = {
-    getGender, 
-    createGender, 
-    getGenderById,
-    updateGenderById,
-    deleteGenderById
+    getTypeInput,
+    getTypeInputById,
+    createTypeInput,
+    updateTypeInputById,
+    deleteTypeInputById
 }

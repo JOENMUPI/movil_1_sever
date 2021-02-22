@@ -178,7 +178,7 @@
     <column id="COL46" populated="true" UUID="9621c7fc-48ac-4dae-b939-fcf7dc9fcadd" autoIncrement="false" autoIncrementSequenceName="input_form_input_form_txt_seq" defaultValue="" name="input_form_txt" nullable="1" physicalName="input_form_txt" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="12" userDefinedTypeUUID="831ac2d4-0e65-47ec-a0b7-62b7f6b8760a" >
      <remarks></remarks>
     </column>
-    <column id="COL47" populated="true" UUID="f03c9fdc-a687-4d87-ac48-dcaf130c79fe" autoIncrement="false" autoIncrementSequenceName="type_input_form_type_input_form_seq" defaultValue="" name="type_input_form" nullable="0" physicalName="type_input_form" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
+    <column id="COL47" populated="true" UUID="f03c9fdc-a687-4d87-ac48-dcaf130c79fe" autoIncrement="false" autoIncrementSequenceName="type_input_form_type_input_form_seq" defaultValue="" name="type_input_form_ide" nullable="0" physicalName="type_input_form_ide" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
      <remarks></remarks>
     </column>
     <column id="COL48" populated="true" UUID="9d9df29b-7cf7-40df-b552-55f122e7b398" autoIncrement="false" autoIncrementSequenceName="question_question_ide_seq" defaultValue="" name="question_ide" nullable="0" physicalName="question_ide" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
@@ -198,7 +198,7 @@
   <table id="TAB51" populated="true" UUID="bd8cce07-e687-44e0-bd71-d4d4db09e9a8" name="type_input_form" objectType="TABLE" physicalName="type_input_form" >
    <remarks></remarks>
    <folder id="FOLTAB511" populated="true" name="Columns" physicalName="Columns" type="1">
-    <column id="COL52" populated="true" UUID="66177901-cb5e-4aa6-b355-d73088c45d51" autoIncrement="true" autoIncrementSequenceName="type_input_form_type_input_form_seq_1" defaultValue="" name="type_input_form" nullable="0" physicalName="type_input_form" precision="0" primaryKeySeq="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
+    <column id="COL52" populated="true" UUID="66177901-cb5e-4aa6-b355-d73088c45d51" autoIncrement="true" autoIncrementSequenceName="type_input_form_type_input_form_seq_1" defaultValue="" name="type_input_form_ide" nullable="0" physicalName="type_input_form_ide" precision="0" primaryKeySeq="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="4" userDefinedTypeUUID="63b011c7-c81f-4c75-8271-632b3c87f727" >
      <remarks></remarks>
     </column>
     <column id="COL53" populated="true" UUID="eb0e0d0f-4e80-45fe-8d97-18db3150c7cc" autoIncrement="false" autoIncrementSequenceName="type_input_form_type_input_form_des_seq" defaultValue="" name="type_input_form_des" nullable="0" physicalName="type_input_form_des" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="12" userDefinedTypeUUID="831ac2d4-0e65-47ec-a0b7-62b7f6b8760a" >
@@ -211,7 +211,7 @@
     </folder>
     <folder id="FOLTAB514" populated="true" name="Indices" physicalName="Indices" type="4">
     <index id="IDX54" populated="true" UUID="6006a10a-0e9e-47e7-ba92-7e99a18b505e" clustered="false" name="type_input_form_pk" physicalName="type_input_form_pk" primaryKeyIndex="true" unique="false" >
-     <index-column id="IDC55" populated="true" UUID="4a61e091-afbe-4628-88b9-c8ebbcf56a60" ascendingOrDescending="UNSPECIFIED" column-ref="COL52" name="type_input_form" physicalName="type_input_form" />
+     <index-column id="IDC55" populated="true" UUID="4a61e091-afbe-4628-88b9-c8ebbcf56a60" ascendingOrDescending="UNSPECIFIED" column-ref="COL52" name="type_input_form_ide" physicalName="type_input_form_ide" />
     </index>
    </folder>
   </table>
@@ -304,7 +304,7 @@
    </relationship>
   </relationships>
  </target-database>
- <ddl-generator type="ca.sqlpower.architect.ddl.PostgresDDLGenerator" allow-connection="true" target-schema="public"> </ddl-generator>
+ <ddl-generator type="ca.sqlpower.architect.ddl.PostgresDDLGenerator" allow-connection="false" target-schema="public"> </ddl-generator>
  <liquibase-settings useSeparateChangeSets="false" generateId="false" idStart="1"/>
  <create-kettle-job-settings filePath="" jobName="" schemaName="" kettleJoinType="0" savingToFile="true" />
  <play-pen zoom="1.0" viewportX="0" viewportY="0" relationship-style="rectilinear" names-displayLogicalNames="true" showPrimaryTag="true" showForeignTag="true" showAlternateTag="true" columnVisibility="ALL" relationshipLabelVisibility="true">
