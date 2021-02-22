@@ -10,7 +10,6 @@ module.exports = {
     getGenderById: `SELECT * FROM ${ table } WHERE gender_ide = $1`,
     getGenderByDescription: `SELECT * FROM ${ table } WHERE gender_des = $1`,
     
-    
     // Update
     updateGenderById: `UPDATE ${ table } SET gender_des = $1 WHERE gender_ide = $2`,
     

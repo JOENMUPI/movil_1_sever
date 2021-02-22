@@ -1,8 +1,8 @@
 module.exports = {
-    user: 'wsxopsgksjgjin',
-    host: 'ec2-54-162-119-125.compute-1.amazonaws.com',
-    database: 'dbst8p9svek7aq',
-    password: '73ad78e9f211b7f5d78e22ed88b4063f2ecb8fac45fda8614b0798411803dd67',
+    user: 'pfmrikescptlid',
+    host: 'ec2-52-203-27-62.compute-1.amazonaws.com',
+    database: 'da6vpdnf4svls8',
+    password: '9d15c76e77a68a468c80b3edd8efac99fbab98d2e76f5f95fdf5ffb5859f4863',
     port:  5432,
     max: 10,
     idleTimeoutMillis: 30000,

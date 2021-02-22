@@ -1,6 +1,8 @@
 const Pool = require('pg').Pool;
+const bcryt = require('bcryptjs');
 const dbConfig = require('../config/db_config');
 const dbQueriesUser = require('../config/queries/user');
+const dbQueriesGender = require('../config/queries/gender');
 const passwordUtil = require('../utilities/password');
 const field = require('../utilities/field');
 
@@ -54,7 +56,7 @@ const login = async (req, res) => {
         if(data.rows.length > 0) { 
             const users = dataToUser(data.rows);
             
-            (passwordUtil.comparePass(password, data.rows[0].user_pas)) 
+            (await bcryt.compare(password, data.rows[0].user_pas)) 
             ? res.json(newReponse('Logged successfully', 'Success', users))
             : res.json(newReponse('Incorrect password', 'Fail', { }));
         
@@ -70,12 +72,18 @@ const login = async (req, res) => {
 const getUser = async (req, res) => {
     const data = await pool.query(dbQueriesUser.getAllUsers);
     
-    (data) 
-    ? res.json(newReponse('All users', 'Success', dataToUser(data.rows)))
-    : res.json(newReponse('Error searhing the users', 'Error', { }));
+    if (data) {
+        (data.rows.length > 0)
+        ? res.json(newReponse('All users', 'Success', dataToUser(data.rows)))
+        : res.json(newReponse('Error searhing the users', 'Error', { }));
+    
+    } else { 
+        res.json(newReponse('Without users', 'Success', { }));
+    }
+    
 }
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res) => { 
     const data = await pool.query(dbQueriesUser.getUserById, [ req.params.id ]);
     
     if(data) {
@@ -89,39 +97,52 @@ const getUserById = async (req, res) => {
 }
 
 const createUsers = (req, res) => {  
-    const { name, lastname, pass, confirmPass, email } = req.body;
+    const { name, password, gender, age, confirmPassword, email } = req.body;
     const errors = [];
     
-    if(!field.checkFields([ name, pass, confirmPass, email, lastname ])) {
+    if(!field.checkFields([ age, gender, name, password, confirmPassword, email ])) {
         errors.push({ text: 'Please fill in all the spaces' });
     }
 
-    if(!password.checkPass(pass, confirmPass)) { 
+    if(!passwordUtil.checkPass(password, confirmPassword)) { 
         errors.push({ text: 'passwords must be uppercase, lowercase, special characters, have more than 8 digits and match each other'});
     } 
     
     if(errors.length > 0) {
-        res.json(newReponse('Errors detected', 'fail', { errors }));
+        res.json(newReponse('Errors detected', 'Fail', { errors }));
     
     } else { 
-        checkEmail(email, (err, users) => {
-            if(error) {
+        checkEmail(email, (err, users) => { 
+            if(err) {
                 res.json(newReponse(err, 'Error', { }));
                 
             } else if(users) {
                 res.json(newReponse(`Email ${ email } already use`, 'Error', { }));
                 
             } else {    
-                password.encryptPass(pass, async (error, hash) => { 
-                    if(error) {
-                        res.json(newReponse(error, 'Error', { }));
+                passwordUtil.encryptPass(password, async (err, hash) => { 
+                    if(err) {
+                        res.json(newReponse(err, 'Error', { }));
                         
                     } else { 
-                        const data = await pool.query(dbQueriesUser.createUsers, [ name, lastname, hash, email ])
+                        const genderId = await pool.query(dbQueriesGender.getGenderByDescription, [ gender ]);
                         
-                        (data)
-                        ? res.json(newReponse('User created', 'Success', { }))
-                        : res.json(newReponse('Error create user', 'Error', { }));
+                        if(genderId) { 
+                            if(genderId.rows.length > 0) { 
+                                const aux = [ name, email, hash, age, genderId.rows[0].gender_ide, 2 ];
+                                const data = await pool.query(dbQueriesUser.createUsers, aux);
+                        
+                                (data)
+                                ? res.json(newReponse('User created', 'Success', { }))
+                                : res.json(newReponse('Error create user', 'Error', { }));
+
+                            } else {
+                                res.json(newReponse('gender not exist', 'Error', { }))    
+                            }
+                            
+                        } else {
+                            res.json(newReponse('gender not found', 'Error', { }));  
+                        }
                     }
                 });
             }
@@ -140,7 +161,7 @@ const updateUserById = (req, res) => {
     } 
     
     if(errors.length > 0) {
-        res.json(newReponse('Errors detected', 'fail', { errors }));
+        res.json(newReponse('Errors detected', 'Fail', { errors }));
     
     } else {
         checkEmail(email, async (err, users) => {
@@ -155,39 +176,54 @@ const updateUserById = (req, res) => {
                     res.json(newReponse(`Email ${ email } already use`, 'Error', { }));
                     
                 } else {
-                    const data = await pool.query(dbQueriesUser.updateUserById, [ name, lastname, email, id ]);
+                    const genderId = await pool.query(dbQueriesGender.getGenderByDescription, [ gender ]);
                     
-                    (data)
-                    ? res.json(newReponse('User updated', 'Success', { }))
-                    : res.json(newReponse('Error on update', 'Error', { }));
+                    if(genderId) {
+                        if(genderId.rows.length > 0) { 
+                            const aux = [ name, email, age, genderId.rows[0].gender_ide, id ];
+                            const data = await pool.query(dbQueriesUser.updateUserById, aux);
+                            console.log('hola', data);
+                            (data)
+                            ? res.json(newReponse('User updated', 'Success', { }))
+                            : res.json(newReponse('Error on update', 'Error', { }));
+
+                        } else {
+                            res.json(newReponse('Gender no exist', 'Error', { }));
+                        }
+
+                    } else {
+                        res.json(newReponse('Gender not found', 'Error', { }));
+                    }
                 }
             }        
         });       
     }
 }
 
-const updatePassById = (req, res) => {
-    const { password, confirmPassword} = req.body;
+const updatePassById = (req, res) => { 
+    const { password, confirmPassword } = req.body;
     const { id } = req.params; 
     const errors = [];
     
-    if(!field.checkFields([ password, confirmPassword ])) {
+    if(!field.checkFields([ password, confirmPassword ])) { 
         errors.push({ text: 'Please fill in all the spaces' });
     } 
     
-    if(!passwordUtil.checkPass(password, confirmPassword)) {
+    if(!passwordUtil.checkPass(password, confirmPassword)) { 
         errors.push({ text: 'passwords must be uppercase, lowercase, special characters, have more than 8 digits and match each other'});
     
-    } else if(errors.length > 0) {
-        res.json(newReponse('Errors detected', 'fail', { errors }));
+    } 
+    
+    if(errors.length > 0) {
+        res.json(newReponse('Errors detected', 'Fail', { errors }));
     
     } else { 
-        passwordUtil.encryptPass(pass, async (err, hash) => { 
+        passwordUtil.encryptPass(password, async (err, hash) => { 
             if(err) { 
                 res.json(newReponse(err, 'Error', { }));
  
             } else {
-                const data = await pool.query(dbQueries.updatePassById, [ hash, id ]);
+                const data = await pool.query(dbQueriesUser.updatePassById, [ hash, id ]);
                 
                 (data) 
                 ? res.json(newReponse('Pass updated', 'Success', { }))
@@ -199,7 +235,7 @@ const updatePassById = (req, res) => {
 
 const deleteUserById = async (req, res) => {
     const { id } = req.params;
-    const data = await pool.query(dbQueries.deleteUserById, [ id ]);
+    const data = await pool.query(dbQueriesUser.deleteUserById, [ id ]);
     
     (data)
     ? res.json(newReponse('User deleted successfully', 'Success', { }))

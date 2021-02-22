@@ -52,21 +52,9 @@ const encryptPass = async (pass, callBack) => {
     }
 }
 
-const comparePass = async (pass, hash) => {
-    const match = await bcryt.compare(pass, hash); 
-    
-    if(match) {
-        return true;
-    
-    } else {
-        return false;
-    }
-
-}
 
 // Export
 module.exports = {
     encryptPass,
-    checkPass,
-    comparePass
+    checkPass
 }

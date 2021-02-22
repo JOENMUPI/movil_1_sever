@@ -26,7 +26,8 @@ app.use(cors());
 
 // Routes
 app.use(require('./routes/user'));
-//app.use(require('./routes/user'));
+app.use(require('./routes/gender'));
+app.use(require('./routes/menu'));
 
 
 // Server Listen

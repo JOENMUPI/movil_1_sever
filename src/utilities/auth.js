@@ -8,8 +8,8 @@ const pool = new Pool(dbConfig);
 
 
 // Logic
-const AuthAdmin = async (id) => {
-    const data = await pool.query(dbQueriesRole.getRoleById, [ id ]);
+const AuthAdmin = async (userId) => {
+    const data = await pool.query(dbQueriesRole.getRoleByUserId, [ userId ]);
     
     if(data) {
         if(data.rows[0].role_des == 'Admin') {

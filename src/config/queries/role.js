@@ -9,6 +9,8 @@ module.exports = {
     getAllRoles: `SELECT * FROM ${ table }`,
     getRoleById: `SELECT * FROM ${ table } WHERE role_ide = $1`,
     getRoleByDescription: `SELECT * FROM ${ table } WHERE role_des = $1`,
+    getRoleByUserId: `SELECT r.* FROM ${ table } AS r 
+    JOIN user_1 AS u ON u.role_ide = r.role_ide WHERE u.user_ide = $1 `,
     
     
     // Update

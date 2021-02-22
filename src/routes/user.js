@@ -7,7 +7,7 @@ const endPoint = '/user';
 // Get
 router.get(endPoint, user.getUser);
 router.get(`${ endPoint }/:id`, user.getUserById);
-router.get(`${ endPoint }/singout`, /*function*/);
+//router.get(`${ endPoint }/singout`, /*function*/);
 
 // Post
 router.post(`${ endPoint }/singup`, user.createUsers);
