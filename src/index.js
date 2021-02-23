@@ -29,7 +29,7 @@ app.use(require('./routes/user'));
 app.use(require('./routes/gender'));
 app.use(require('./routes/menu'));
 app.use(require('./routes/type_input'))
-
+app.use(require('./routes/form'));
 
 // Server Listen
 app.listen(app.get('port'), () => {

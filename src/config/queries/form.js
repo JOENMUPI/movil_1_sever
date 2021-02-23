@@ -2,7 +2,8 @@ const table = 'form';
 
 module.exports = {
    // Insert
-   createForm: `INSERT INTO ${ table } (form_tit, form_dat, user_ide, sub_menu_ide) VALUES ($1, $2, $3, $4)`,
+   createForm: `INSERT INTO ${ table } (form_tit, form_dat, user_ide, sub_menu_ide) VALUES ($1, $2, $3, $4) 
+   RETURNING form_ide`,
     
     
    // Select
@@ -20,7 +21,7 @@ module.exports = {
    JOIN section_form AS sf ON f.form_ide = sf.form_ide
    JOIN question AS q ON q.section_form_ide = sf.section_form_ide
    JOIN input_form AS if ON if.question_ide = q.question_ide
-   JOIN type_input_form AS tif ON tif.input_form_ide = if.input_form_ide WHERE f.form_ide = $1`,
+   JOIN type_input_form AS tif ON tif.type_input_form_ide = if.type_input_form_ide WHERE f.form_ide = $1`,
    
    
    // Update

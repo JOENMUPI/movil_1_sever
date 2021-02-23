@@ -53,7 +53,7 @@ const login = async (req, res) => {
     const data = await pool.query(dbQueriesUser.getUserByEmail, [ email ]);
     
     if(data) { 
-        if(data.rows.length > 0) { 
+        if(data.rowCount > 0) { 
             const users = dataToUser(data.rows);
             
             (await bcryt.compare(password, data.rows[0].user_pas)) 
@@ -73,7 +73,7 @@ const getUser = async (req, res) => {
     const data = await pool.query(dbQueriesUser.getAllUsers);
     
     if (data) {
-        (data.rows.length > 0)
+        (data.rowCount > 0)
         ? res.json(newReponse('All users', 'Success', dataToUser(data.rows)))
         : res.json(newReponse('Error searhing the users', 'Error', { }));
     
@@ -87,7 +87,7 @@ const getUserById = async (req, res) => {
     const data = await pool.query(dbQueriesUser.getUserById, [ req.params.id ]);
     
     if(data) {
-        (data.rows.length > 0) 
+        (data.rowCount > 0) 
         ? res.json(newReponse('User found', 'Success', dataToUser(data.rows)))
         : res.json(newReponse('User not found', 'Error', { }));
 
@@ -128,7 +128,7 @@ const createUsers = (req, res) => {
                         const genderId = await pool.query(dbQueriesGender.getGenderByDescription, [ gender ]);
                         
                         if(genderId) { 
-                            if(genderId.rows.length > 0) { 
+                            if(genderId.rowCount > 0) { 
                                 const aux = [ name, email, hash, age, genderId.rows[0].gender_ide, 2 ];
                                 const data = await pool.query(dbQueriesUser.createUsers, aux);
                         
@@ -179,10 +179,10 @@ const updateUserById = (req, res) => {
                     const genderId = await pool.query(dbQueriesGender.getGenderByDescription, [ gender ]);
                     
                     if(genderId) {
-                        if(genderId.rows.length > 0) { 
+                        if(genderId.rowCount > 0) { 
                             const aux = [ name, email, age, genderId.rows[0].gender_ide, id ];
                             const data = await pool.query(dbQueriesUser.updateUserById, aux);
-                            console.log('hola', data);
+                            
                             (data)
                             ? res.json(newReponse('User updated', 'Success', { }))
                             : res.json(newReponse('Error on update', 'Error', { }));

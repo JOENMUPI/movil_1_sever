@@ -2,7 +2,8 @@ const table = 'question';
 
 module.exports = {
     // Insert
-    createQuestion: `INSERT INTO ${ table } (question_tit, question_obl, section_form) VALUES ($1, $2, $3)`,
+    createQuestion: `INSERT INTO ${ table } (question_tit, question_obl, section_form_ide) VALUES ($1, $2, $3) 
+    RETURNING question_ide`,
     
     
     // Select

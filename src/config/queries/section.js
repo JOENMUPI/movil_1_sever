@@ -2,7 +2,8 @@ const table = 'section_form';
 
 module.exports = {
    // Insert
-   createSection: `INSERT INTO ${ table } (section_form_tit, section_form_des, form_ide) VALUES ($1, $2, $3)`,
+   createSection: `INSERT INTO ${ table } (section_form_tit, section_form_des, form_ide) VALUES ($1, $2, $3) 
+   RETURNING section_form_ide`,
     
     
    // Select

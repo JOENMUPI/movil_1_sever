@@ -2,7 +2,7 @@ const table = 'input_form';
 
 module.exports = {
     // Insert
-    createInput: `INSERT INTO ${ table } (input_form_txt, type_input_form, question_ide) VALUES ($1, $2, $3)`,
+    createInput: `INSERT INTO ${ table } (input_form_txt, type_input_form_ide, question_ide) VALUES ($1, $2, $3)`,
     
     
     // Select

@@ -19,7 +19,7 @@ const dataToTI = (rows) => {
     rows.forEach(element => {
         TIs.push({  
             description: element.type_input_form_des,
-            id: element.type_input_form,
+            id: element.type_input_form_ide,
         });
     });
 
@@ -35,7 +35,7 @@ const getTypeInput = async (req, res) => {
         const data = await pool.query(dbQueriesTI.getAllTypeInputs);
     
         if(data) { 
-            (data.rows.length > 0)
+            (data.rowCount > 0)
             ? res.json(newReponse('All TIs', 'Success', dataToTI(data.rows)))
             : res.json(newReponse('Without TIs', 'Success', { }));
         

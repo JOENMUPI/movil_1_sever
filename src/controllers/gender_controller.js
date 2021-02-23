@@ -35,7 +35,7 @@ const getGender = async (req, res) => {
         const data = await pool.query(dbQueriesGender.getAllGenders);
     
         if(data) {
-            (data.rows.length > 0)
+            (data.rowCount > 0)
             ? res.json(newReponse('All genders', 'Success', dataToGender(data.rows)))
             : res.json(newReponse('Without genders', 'Success', { }));
         
@@ -55,7 +55,7 @@ const getGenderById = async (req, res) => {
         const data = await pool.query(dbQueriesGender.getGenderById, [ genderId ]);
     
         if(data) {
-            (data.rows.length > 0) 
+            (data.rowCount > 0) 
             ? res.json(newReponse('Gender found', 'Success', dataToGender(data.rows)))
             : res.json(newReponse('Gender not found', 'Error', { }));
 
@@ -82,7 +82,7 @@ const createGender = async (req, res) => {
             res.json(newReponse('Errors detected', 'fail', { errors }));
         
         } else { 
-            const data = await pool.query(dbQueriesGender.createGender, [ description ]);
+            const data = await pool.query(dbQueriesGender.createGender, [ description ]); console.log('data:', data.rows);
                             
             (data)
             ? res.json(newReponse('Gender created', 'Success', { }))

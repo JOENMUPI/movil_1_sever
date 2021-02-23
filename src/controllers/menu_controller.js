@@ -36,7 +36,7 @@ const getMenu = async (req, res) => {
         const data = await pool.query(dbQueriesMenu.getAllMenus);
     
         if(data) {
-            (data.rows.length > 0)
+            (data.rowCount > 0)
             ? res.json(newReponse('All menus', 'Success', dataToMenu(data.rows)))
             : res.json(newReponse('Error searhing the menu', 'Error', { }));
         
@@ -56,7 +56,7 @@ const getMenuById = async (req, res) => {
         const data = await pool.query(dbQueriesMenu.getMenuById, [ menuId ]);    
 
         if(data) {  
-            (data.rows.length > 0) 
+            (data.rowCount > 0) 
             ? res.json(newReponse('Menu found', 'Success', dataToMenu(data.rows)))
             : res.json(newReponse('Menu not found', 'Error', { }));
     
@@ -76,7 +76,7 @@ const getMenuByIdWithRec = async (req, res) => {
         const data = await pool.query(dbQueriesMenu.getMenuByIdWithRec, [ menuId ]);    
 
         if(data) {  
-            (data.rows.length > 0) 
+            (data.rowCount > 0) 
             ? res.json(newReponse('Menu found', 'Success', dataToMenu(data.rows)))
             : res.json(newReponse('Menu not found', 'Error', { }));
     
