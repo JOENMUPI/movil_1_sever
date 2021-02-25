@@ -29,5 +29,5 @@ module.exports = {
    
 
    // Delete
-   deleteFormById: `DELETE FROM ${ table } WHERE role_ide = $1`
+   deleteFormById: `DELETE FROM ${ table } WHERE form_ide = $1`
 };

@@ -7,9 +7,11 @@ const endPoint = '/form';
 
 // Get
 router.get(`${ endPoint }/:formId`, form.getFormById);
+router.get(`${ endPoint }/question/:questionId`, form.getQuestionById);
+router.get(`${ endPoint }/section/:sectionId`, form.getSectionById);
 
 // Post
-router.post(`${ endPoint }/:userId/:menuId`, form.createForm);
+router.post(endPoint, form.createForm);
 
 
 // Put
@@ -17,7 +19,7 @@ router.post(`${ endPoint }/:userId/:menuId`, form.createForm);
 
 
 // Delete
-//router.delete(`${ endPoint }/:userId/:genderId`, gender.deleteGenderById);
+router.delete(`${ endPoint }/:userId/:formId`, form.deleteFormById);
 
 
 // Export

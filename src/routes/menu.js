@@ -8,11 +8,11 @@ const endPoint = '/menu';
 // Get
 router.get(`${ endPoint }/:userId`, menu.getMenu);
 router.get(`${ endPoint }/:userId/:menuId`, menu.getMenuById);
-router.get(`${ endPoint }/rec/:userId/:menuId`, menu.getMenuByIdWithRec);
+router.get(`${ endPoint }/rec/:menuId`, menu.getMenuByIdWithRec);
 
 
 // Post
-router.post(`${ endPoint }/:userId`, menu.createMenu);
+router.post(endPoint, menu.createMenu);
 
 
 // Put

@@ -1,14 +1,19 @@
 // Logic
 const checkFields = (fields) => {
-    let flag = true;
+    try {
+        let flag = true;
 
-    fields.forEach((Element) => {
-        if(Element.length <= 0) {
-            flag = false;
-        }
-    });
+        fields.forEach((Element) => {
+            if(Element.length <= 0) {
+                flag = false;
+            }
+        });
 
-    return flag;
+        return flag; 
+    
+    } catch(e) {
+        return false;
+    }
 }
 
 

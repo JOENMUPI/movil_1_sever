@@ -10,7 +10,7 @@ router.get(`${ endPoint }/:userId`, gender.getGender);
 router.get(`${ endPoint }/:userId/:genderId`, gender.getGenderById);
 
 // Post
-router.post(`${ endPoint }/:userId`, gender.createGender);
+router.post(endPoint, gender.createGender);
 
 
 // Put

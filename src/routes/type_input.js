@@ -10,7 +10,7 @@ router.get(`${ endPoint }/:userId`, typeInput.getTypeInput);
 router.get(`${ endPoint }/:userId/:typeInputId`, typeInput.getTypeInputById);
 
 // Post
-router.post(`${ endPoint }/:userId`, typeInput.createTypeInput);
+router.post(endPoint, typeInput.createTypeInput);
 
 
 // Put

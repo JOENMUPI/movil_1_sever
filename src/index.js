@@ -30,6 +30,8 @@ app.use(require('./routes/gender'));
 app.use(require('./routes/menu'));
 app.use(require('./routes/type_input'))
 app.use(require('./routes/form'));
+app.use(require('./routes/response'));
+
 
 // Server Listen
 app.listen(app.get('port'), () => {

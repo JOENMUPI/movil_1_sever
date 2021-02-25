@@ -5,8 +5,7 @@ const dbQueriesInput = require('../config/queries/input');
 const dBQueriesForm = require('../config/queries/form');
 const dbQueriesSection = require('../config/queries/section');
 const dbQueriesQuestion = require('../config/queries/question');
-const auth = require('../utilities/auth');
-const field = require('../utilities/field');
+const auth = require('../utilities/auth'); 
 
 // Variables
 const pool = new Pool(dbConfig);
@@ -57,173 +56,160 @@ const dataToInput = (rows) => {
     return inputs;
 }
 
-const checkForm = (form) => {
-    let flag = true;
+const getInputsWithQuestion = async (question) => {
+    const inputData = await pool.query(dbQueriesInput.getInputsByQuestion, [ question.id ]);
+                     
+    if(inputData.rowCount > 0) { 
+        question.inputs = dataToInput(inputData.rows); 
+        return question;
     
-    try {
-        if(!field.checkFields([ form.tittle, form.sections ])) { 
-            flag = false;
+    } else {
+        return null;
+    }
+}
+
+const getQuestionsWithSection = async (section) => {
+    const questionData = await pool.query(dbQueriesQuestion.getQuestionsBySection, [ section.id ]);
+    const questions = [];
+
+    if(questionData.rowCount > 0) { 
+        for(let i = 0; i < questionData.rowCount; i++) { 
+            questions.push(await getInputsWithQuestion(dataToQuestion(questionData.rows[i], [])));
+        } 
         
-        } else {
-            form.sections.forEach(section  => { 
-                if(!field.checkFields([ section.tittle, section.message, section.questions ])) {
-                    flag = false;
-                
-                } else {
-                    section.questions.forEach(question => { 
-                        if(!field.checkFields([ question.tittle, question.inputs, question.obligatory ])) {
-                            flag = false;
-                        
-                        } else {
-                            question.inputs.forEach(input => { 
-                                if(!field.checkFields([ input.message, input.type ])) {
-                                    flag = false;      
-                                } 
-                            });
-                        }
-                    });
-                }    
-            });
+        section.questions = questions; 
+        return section;
+    
+    } else {
+        return null;
+    }
+}
+
+const getSectionsWithForm = async (form) => {
+    const sectionData = await pool.query(dbQueriesSection.getSectionsByForm, [ form.id ]);
+    const sections = [];
+
+    if(sectionData.rowCount > 0) {
+        for(let i = 0; i < sectionData.rowCount; i++) {
+            sections.push(await getQuestionsWithSection(dataToSection(sectionData.rows[i], [])));
         }
 
-        return flag;
+        form.sections = sections;
+        return form;
 
-    } catch (err) { 
-        return false;
+    } else {
+        return null;
     }
 }
 
 
 // Logic
+const getQuestionById = async (req, res) => { 
+    const { questionId } = req.params;
+    const questionData = await pool.query(dbQueriesQuestion.getQuestionById, [ questionId ]);
+
+    if(!questionData) {
+        res.json(newReponse('Error searshing question', 'Error', { }));
+    
+    } else {
+        if(questionData.rowCount <= 0) {
+            res.json(newReponse('Question not found', 'Success', { }));
+        
+        } else {
+            res.json(newReponse('Question found', 'Success', await getInputsWithQuestion(dataToQuestion(questionData.rows[0], []))));
+        }
+    }
+}
+
+const getSectionById = async (req, res) => {
+    const { sectionId } = req.params;
+    const sectionData = await pool.query(dbQueriesSection.getSectionById, [ sectionId ]);
+
+    if(!sectionData) {
+        res.json(newReponse('Error searshing section', 'Error', { }));
+    
+    } else {
+        if(sectionData.rowCount <= 0) {
+            res.json(newReponse('Section not found', 'Success', { }));
+        
+        } else {
+            res.json(newReponse('Section found', 'Success', await getQuestionsWithSection(dataToSection(sectionData.rows[0], []))));
+        }
+    }
+}
+
 const getFormById = async (req, res) => {
     const { formId } = req.params;
     const formData = await pool.query(dBQueriesForm.getFormById, [ formId ]);
-    let questions = [];
-    let sections = [];
 
     if(!formData) {
         res.json(newReponse('Error searshing form', 'Error', { }));
-
+    
     } else {
         if(formData.rowCount <= 0) {
-            res.json(newReponse('Form not found', 'Success', { }));    
+            res.json(newReponse('Form not found', 'Success', { }));
         
-        } else { 
-            const sectionData = await pool.query(dbQueriesSection.getSectionsByForm, [ formData.rows[0].form_ide ]); 
-            
-            if(!sectionData) {
-                res.json(newReponse('Error searshing sections', 'Error', { }));
-            
-            } else {
-                if(sectionData.rowCount <= 0) { 
-                    res.json(newReponse('Section not found', 'Success', { }));
-                
-                }   else {
-                    for(let i = 0; i < sectionData.rowCount; i++) {
-                        const sectionId = [ sectionData.rows[i].section_form_ide ];
-                        const questionData = await pool.query(dbQueriesQuestion.getQuestionsBySection, sectionId);
-
-                        if(!questionData) {
-                            res.json(newReponse('Error searshing questions', 'Error', { }));
-                        } else {
-                            if(questionData.rowCount <= 0) { 
-                                res.json(newReponse('Section not found', 'Success', { }));
-                            } else {
-                                
-                                for(let j = 0; j < questionData.rowCount; j++) {
-                                    const questionId = [ questionData.rows[j].question_ide ];
-                                    const inputData = await pool.query(dbQueriesInput.getInputsByQuestion, questionId);
-                                
-                                    if(!inputData) {
-                                        res.json(newReponse('Error searshing inputs', 'Error', { }));
-                                    
-                                    } else {
-                                        if(inputData.rowCount <= 0) {
-                                            res.json(newReponse('Inputs not found', 'Success', { }));
-                                        
-                                        } else { 
-                                            questions.push(dataToQuestion(questionData.rows[j], dataToInput(inputData.rows)));
-                                        }
-                                    }
-                                }
-
-                                sections.push(dataToSection(sectionData.rows[i], questions));
-                            } 
-                        }
-                    }
-                }
-            }
-            
-            res.json(newReponse('funca', 'Success', dataToForm(formData.rows[0], sections)));
+        } else {
+            res.json(newReponse('Form found', 'Success', await getSectionsWithForm(dataToForm(formData.rows[0], []))));
         }
     }
 }
 
 const createForm = async (req, res) => {
-    const { userId, menuId } = req.params;
-    const form = req.body;
-    const errors = [];
-    
-    if(!checkForm(form)) {
-        errors.push({ text: 'Invalid format' });
-    } 
-    
-    if(errors.length > 0) {
-        res.json(newReponse('Errors detected', 'Fail', { errors }));
-    
-    } else {
-        if(await auth.AuthAdmin(userId)) {
-            const formData = await pool.query(dBQueriesForm.createForm, [ form.tittle, new Date(), userId, menuId ]);
+    const { userId, menuId, form } = req.body;
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+        const formData = await client.query(dBQueriesForm.createForm, [ form.tittle, new Date(), userId, menuId ]);
+        
+        form.sections.forEach(async (section) => { 
+            const sectionAux = [ section.tittle, section.message, formData.rows[0].form_ide ];
+            const sectionData = await client.query(dbQueriesSection.createSection, sectionAux);
             
-            if(!formData) { 
-                res.json(newReponse('Error create form', 'Error', { }));
-    
-            } else { 
-                form.sections.forEach(async (section) => {
-                    const sectionAux = [ section.tittle, section.message, formData.rows[0].form_ide ];
-                    const sectionData = await pool.query(dbQueriesSection.createSection, sectionAux);
-                
-    
-                    if(!sectionData) {
-                        res.json(newReponse('Error create section', 'Error', { }));
-                    
-                    } else { 
-                        section.questions.forEach( async (question) => {
-                            const questionAux = [ question.tittle, question.obligatory, sectionData.rows[0].section_form_ide ];
-                            const questionData = await pool.query(dbQueriesQuestion.createQuestion, questionAux);
-    
-    
-                            if(!questionData) { 
-                                res.json(newReponse('Error create question', 'Error', { }));
-                            
-                            } else { 
-                                question.inputs.forEach(async (input) => { 
-                                    const typeInputId = await pool.query(dbQueriesTypeInput.getTypeInputByDescription, [ input.type ]);
+            section.questions.forEach(async (question) => { 
+                const questionAux = [ question.tittle, question.obligatory, sectionData.rows[0].section_form_ide ];
+                const questionData = await client.query(dbQueriesQuestion.createQuestion, questionAux);
+
+                question.inputs.forEach(async (input) => { 
+                    const typeInputId = await pool.query(dbQueriesTypeInput.getTypeInputByDescription, [ input.type ]);
                                     
-                                    if(typeInputId) { 
-                                        const inputAux = [ 
-                                            input.message, 
-                                            typeInputId.rows[0].type_input_form_ide, 
-                                            questionData.rows[0].question_ide 
-                                        ];
-                                        
-                                        await pool.query(dbQueriesInput.createInput, inputAux);
-    
-                                    } else { 
-                                        res.json(newReponse('Error searching TI id', 'Error', { }));        
-                                    }   
-                                });
-                            }
-                        });
+                    if(typeInputId) { 
+                        const inputAux = [ input.message, typeInputId.rows[0].type_input_form_ide, questionData.rows[0].question_ide ];
+                        
+                        await pool.query(dbQueriesInput.createInput, inputAux);
+
+                    } else { 
+                        res.json(newReponse('Error searching TI id', 'Error', { }));        
                     }
                 });
+            });
+        });
+
+        await client.query('COMMIT');
+        res.json(newReponse('Form created successfully', 'Success', { }));
+
+    } catch(errors) {
+        await client.query('ROLLBACK');
+        res.json(newReponse('Error on inserts', 'Fail', { errors }));
+
+    } finally { 
+        client.release();
+    }
+}
+
+const deleteFormById = async (req, res) => {
+    const { formId, userId } = req.params;
     
-                res.json(newReponse('Form created successfully', 'Success', { }));
-            }
-    
-        } else {
-            res.json(newReponse('User not admin', 'Error', { }));
-        }
+    if(await auth.AuthAdmin(userId)) {
+        const formData = await pool.query(dBQueriesForm.deleteFormById, [ formId ]);
+        
+        if(formData) {
+            res.json(newReponse('Form deleted successfully', 'Error', { }));    
+        } 
+
+    } else {
+        res.json(newReponse('User not admin', 'Error', { }));
     }
 }
 
@@ -231,5 +217,8 @@ const createForm = async (req, res) => {
 // Export
 module.exports = {
     createForm,
-    getFormById
+    getFormById,
+    getQuestionById,
+    getSectionById,
+    deleteFormById,
 }

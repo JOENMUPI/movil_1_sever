@@ -69,8 +69,7 @@ const getGenderById = async (req, res) => {
 }
 
 const createGender = async (req, res) => {  
-    const { description } = req.body;
-    const { userId } = req.params;
+    const { description, userId } = req.body;
     const errors = [];
     
     if(await auth.AuthAdmin(userId)) {

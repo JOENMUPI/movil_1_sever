@@ -70,28 +70,21 @@ const getMenuById = async (req, res) => {
 }
 
 const getMenuByIdWithRec = async (req, res) => {
-    const { userId,  menuId } = req.params;
+    const { userId,  menuId } = req.params; 
+    const data = await pool.query(dbQueriesMenu.getMenuByIdWithRec, [ menuId ]);    
 
-    if(await auth.AuthAdmin(userId)) {
-        const data = await pool.query(dbQueriesMenu.getMenuByIdWithRec, [ menuId ]);    
-
-        if(data) {  
-            (data.rowCount > 0) 
-            ? res.json(newReponse('Menu found', 'Success', dataToMenu(data.rows)))
-            : res.json(newReponse('Menu not found', 'Error', { }));
-    
-        } else {
-            res.json(newReponse('Error searching menu with id', 'Error', { }));
-        }
+    if(data) {  
+        (data.rowCount > 0) 
+        ? res.json(newReponse('Menu found', 'Success', dataToMenu(data.rows)))
+        : res.json(newReponse('Menu not found', 'Error', { }));
 
     } else {
-        res.json(newReponse('User not admin', 'Error', { }));
-    }
+        res.json(newReponse('Error searching menu with id', 'Error', { }));
+    }   
 }
 
 const createMenu = async (req, res) => {  
-    const { tittle, parent } = req.body;
-    const { userId } = req.params;
+    const { tittle, parent, userId } = req.body;
     const errors = [];
     
     if(await auth.AuthAdmin(userId)) {

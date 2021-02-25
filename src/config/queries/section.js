@@ -17,5 +17,6 @@ module.exports = {
    
 
    // Delete
-   deleteSectionById: `DELETE FROM ${ table } WHERE section_ide = $1`
+   deleteSectionById: `DELETE FROM ${ table } WHERE section_form_ide = $1`,
+   deleteSectionByFormId: `DELETE FROM ${ table } WHERE dorm_ide = $1`
 };
