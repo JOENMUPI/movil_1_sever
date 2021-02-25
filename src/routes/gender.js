@@ -6,7 +6,7 @@ const endPoint = '/gender';
 
 
 // Get
-router.get(`${ endPoint }/:userId`, gender.getGender);
+router.get(endPoint, gender.getGender);
 router.get(`${ endPoint }/:userId/:genderId`, gender.getGenderById);
 
 // Post

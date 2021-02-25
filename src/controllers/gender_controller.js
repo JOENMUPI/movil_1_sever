@@ -29,22 +29,15 @@ const dataToGender = (rows) => {
 
 // Logic
 const getGender = async (req, res) => {
-    const { userId } = req.params;
+    const data = await pool.query(dbQueriesGender.getAllGenders);
 
-    if(await auth.AuthAdmin(userId)) { 
-        const data = await pool.query(dbQueriesGender.getAllGenders);
+    if(data) {
+        (data.rowCount > 0)
+        ? res.json(newReponse('All genders', 'Success', dataToGender(data.rows)))
+        : res.json(newReponse('Without genders', 'Success', { }));
     
-        if(data) {
-            (data.rowCount > 0)
-            ? res.json(newReponse('All genders', 'Success', dataToGender(data.rows)))
-            : res.json(newReponse('Without genders', 'Success', { }));
-        
-        } else {
-            res.json(newReponse('Error searhing the gender', 'Error', { }));
-        }
-
-    } else { 
-        res.json(newReponse('User not admin', 'Error', { }));
+    } else {
+        res.json(newReponse('Error searhing the gender', 'Error', { }));
     }
 }
 

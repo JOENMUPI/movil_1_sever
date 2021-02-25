@@ -41,6 +41,7 @@ const checkEmail = async (email, callBack) => {
         } else {
             return callBack(null, null);
         }    
+
     } else {
         return callBack('Error on query');
     }
@@ -48,8 +49,8 @@ const checkEmail = async (email, callBack) => {
 
 
 // Logic
-const login = async (req, res) => {
-    const { email, password } = req.body;
+const login = async (req, res) => { 
+    const { email, password } = req.body; console.log('body:', req.body); 
     const data = await pool.query(dbQueriesUser.getUserByEmail, [ email ]);
     
     if(data) { 
@@ -58,10 +59,10 @@ const login = async (req, res) => {
             
             (await bcryt.compare(password, data.rows[0].user_pas)) 
             ? res.json(newReponse('Logged successfully', 'Success', users))
-            : res.json(newReponse('Incorrect password', 'Fail', { }));
+            : res.json(newReponse('Incorrect password', 'Error', { }));
         
         } else {
-            res.json(newReponse('Email not found', 'Fail', { })); 
+            res.json(newReponse('Email not found', 'Error', { })); 
         }
 
     } else {
@@ -125,24 +126,11 @@ const createUsers = (req, res) => {
                         res.json(newReponse(err, 'Error', { }));
                         
                     } else { 
-                        const genderId = await pool.query(dbQueriesGender.getGenderByDescription, [ gender ]);
-                        
-                        if(genderId) { 
-                            if(genderId.rowCount > 0) { 
-                                const aux = [ name, email, hash, age, genderId.rows[0].gender_ide, 2 ];
-                                const data = await pool.query(dbQueriesUser.createUsers, aux);
-                        
-                                (data)
-                                ? res.json(newReponse('User created', 'Success', { }))
-                                : res.json(newReponse('Error create user', 'Error', { }));
-
-                            } else {
-                                res.json(newReponse('gender not exist', 'Error', { }))    
-                            }
-                            
-                        } else {
-                            res.json(newReponse('gender not found', 'Error', { }));  
-                        }
+                        const data = await pool.query(dbQueriesUser.createUsers, [ name, email, hash, age, gender, 2 ]);
+            
+                        (data)
+                        ? res.json(newReponse('User created', 'Success', { id: data.rows[0].user_ide }))
+                        : res.json(newReponse('Error create user', 'Error', { }));     
                     }
                 });
             }

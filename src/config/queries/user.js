@@ -2,7 +2,8 @@ const table = 'user_1';
 
 module.exports = {
     // Insert
-    createUsers: `INSERT INTO ${ table } (user_nam, user_ema, user_pas, user_age, gender_ide, role_ide) VALUES ($1, $2, $3, $4, $5, $6)`,
+    createUsers: `INSERT INTO ${ table } (user_nam, user_ema, user_pas, user_age, gender_ide, role_ide) VALUES ($1, $2, $3, $4, $5, $6) 
+    RETURNING user_ide`,
     
     
     // Select 
