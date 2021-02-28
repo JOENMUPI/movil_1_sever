@@ -145,7 +145,6 @@ const updateUserById = (req, res) => {
 
     if(!field.checkFields([ name, email, age, gender ])) {
         errors.push({ text: 'Please fill in all the spaces' });
-    
     } 
     
     if(errors.length > 0) {
@@ -163,37 +162,24 @@ const updateUserById = (req, res) => {
                 if(users[0].id != id) {
                     res.json(newReponse(`Email ${ email } already use`, 'Error', { }));
                     
-                } else {
-                    const genderId = await pool.query(dbQueriesGender.getGenderByDescription, [ gender ]);
-                    
-                    if(genderId) {
-                        if(genderId.rowCount > 0) { 
-                            const aux = [ name, email, age, genderId.rows[0].gender_ide, id ];
-                            const data = await pool.query(dbQueriesUser.updateUserById, aux);
-                            
-                            (data)
-                            ? res.json(newReponse('User updated', 'Success', { }))
-                            : res.json(newReponse('Error on update', 'Error', { }));
-
-                        } else {
-                            res.json(newReponse('Gender no exist', 'Error', { }));
-                        }
-
-                    } else {
-                        res.json(newReponse('Gender not found', 'Error', { }));
-                    }
+                } else {   console.log('aqui:', gender);   
+                    const data = await pool.query(dbQueriesUser.updateUserById, [ name, email, age, gender, id ]);
+                
+                    (data)
+                    ? res.json(newReponse('User updated', 'Success', { }))
+                    : res.json(newReponse('Error on update', 'Error', { }));
                 }
             }        
         });       
     }
 }
 
-const updatePassById = (req, res) => { 
-    const { password, confirmPassword } = req.body;
+const updatePassById = async (req, res) => { 
+    const { password, confirmPassword, oldPassword } = req.body;
     const { id } = req.params; 
     const errors = [];
     
-    if(!field.checkFields([ password, confirmPassword ])) { 
+    if(!field.checkFields([ password, confirmPassword, oldPassword ])) { 
         errors.push({ text: 'Please fill in all the spaces' });
     } 
     
@@ -205,19 +191,30 @@ const updatePassById = (req, res) => {
     if(errors.length > 0) {
         res.json(newReponse('Errors detected', 'Fail', { errors }));
     
-    } else { 
-        passwordUtil.encryptPass(password, async (err, hash) => { 
-            if(err) { 
-                res.json(newReponse(err, 'Error', { }));
- 
+    } else {
+        const user = await pool.query(dbQueriesUser.getUserById, [ id ]);
+
+        if(user.rowCount <= 0) {
+            res.json(newReponse('User not found', 'Error', { })); 
+        
+        } else {
+            if(await bcryt.compare(oldPassword, user.rows[0].user_pas)) {
+                passwordUtil.encryptPass(password, async (err, hash) => { 
+                    if(err) { 
+                        res.json(newReponse(err, 'Error', { }));
+         
+                    } else {
+                        const data = await pool.query(dbQueriesUser.updatePassById, [ hash, id ]);
+                        
+                        (data) 
+                        ? res.json(newReponse('Pass updated', 'Success', { }))
+                        : res.json(newReponse('Error on update', 'Error', { }));
+                    }
+                });
             } else {
-                const data = await pool.query(dbQueriesUser.updatePassById, [ hash, id ]);
-                
-                (data) 
-                ? res.json(newReponse('Pass updated', 'Success', { }))
-                : res.json(newReponse('Error on update', 'Error', { }));
+                res.json(newReponse('Old password no match', 'Error', { }));
             }
-        });
+        } 
     }
 }
 

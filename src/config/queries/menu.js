@@ -7,6 +7,7 @@ module.exports = {
     
     // Select
     getAllMenus: `SELECT * FROM ${ table }`,
+    getMenusWithoutParentId: `SELECT * FROM ${ table } WHERE parent_sub_menu_ide is null`,
     getMenuById:`SELECT * FROM ${ table } WHERE sub_menu_ide = $1`,
 
     getMenuByIdWithRec: `WITH RECURSIVE parents AS (SELECT * FROM ${ table } WHERE sub_menu_ide = $1 

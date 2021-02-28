@@ -6,7 +6,7 @@ const endPoint = '/menu';
 
 
 // Get
-router.get(`${ endPoint }/:userId`, menu.getMenu);
+router.get(endPoint, menu.getMenu);
 router.get(`${ endPoint }/:userId/:menuId`, menu.getMenuById);
 router.get(`${ endPoint }/rec/:menuId`, menu.getMenuByIdWithRec);
 

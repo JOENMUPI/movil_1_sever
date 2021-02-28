@@ -30,22 +30,15 @@ const dataToMenu = (rows) => {
 
 // Logic
 const getMenu = async (req, res) => {
-    const { userId } = req.params;
+    const data = await pool.query(dbQueriesMenu.getMenusWithoutParentId);
 
-    if(await auth.AuthAdmin(userId)) { 
-        const data = await pool.query(dbQueriesMenu.getAllMenus);
+    if(data) {
+        (data.rowCount > 0)
+        ? res.json(newReponse('All menus', 'Success', dataToMenu(data.rows)))
+        : res.json(newReponse('Error searhing the menu', 'Error', { }));
     
-        if(data) {
-            (data.rowCount > 0)
-            ? res.json(newReponse('All menus', 'Success', dataToMenu(data.rows)))
-            : res.json(newReponse('Error searhing the menu', 'Error', { }));
-        
-        } else {
-            res.json(newReponse('Without menus', 'Success', { }));
-        }
-
-    } else { 
-        res.json(newReponse('User not admin', 'Error', { }));
+    } else {
+        res.json(newReponse('Without menus', 'Success', { }));
     }
 }
 
