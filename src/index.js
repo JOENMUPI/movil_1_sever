@@ -31,6 +31,8 @@ app.use(require('./routes/menu'));
 app.use(require('./routes/type_input'))
 app.use(require('./routes/form'));
 app.use(require('./routes/response'));
+app.use(require('./routes/role'));
+
 
 
 // Server Listen

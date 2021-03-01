@@ -155,6 +155,24 @@ const getFormById = async (req, res) => {
     }
 }
 
+const getFormByMenuId = async (req, res) => {
+    const { menuId } = req.params;
+    const formData = await pool.query(dBQueriesForm.getFormByMenu, [ menuId ]);
+
+    if(!formData) {
+        res.json(newReponse('Error searshing form', 'Error', { }));
+    
+    } else {
+        if(formData.rowCount <= 0) {
+            res.json(newReponse('Form not found', 'Success', null));
+        
+        } else {
+            res.json(newReponse('Form found', 'Success', dataToForm(formData.rows[0], [])));
+        }
+    }
+}
+
+
 const createForm = async (req, res) => {
     const { userId, menuId, form } = req.body;
     const client = await pool.connect();
@@ -218,6 +236,7 @@ const deleteFormById = async (req, res) => {
 module.exports = {
     createForm,
     getFormById,
+    getFormByMenuId,
     getQuestionById,
     getSectionById,
     deleteFormById,

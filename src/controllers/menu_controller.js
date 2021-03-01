@@ -10,7 +10,7 @@ const pool = new Pool(dbConfig);
 
 // Utilities
 const newReponse = (message, typeResponse, body) => {
-    return {  message, typeResponse, body }
+    return { message, typeResponse, body }
 }
 
 const dataToMenu = (rows) => {
@@ -62,8 +62,8 @@ const getMenuById = async (req, res) => {
     }
 }
 
-const getMenuByIdWithRec = async (req, res) => {
-    const { userId,  menuId } = req.params; 
+const getMenuByIdWithRec = async (req, res) => { 
+    const { menuId } = req.params; 
     const data = await pool.query(dbQueriesMenu.getMenuByIdWithRec, [ menuId ]);    
 
     if(data) {  
@@ -80,7 +80,7 @@ const createMenu = async (req, res) => {
     const { tittle, parent, userId } = req.body;
     const errors = [];
     
-    if(await auth.AuthAdmin(userId)) {
+    if(await auth.AuthAdmin(userId)) { 
         if(!field.checkFields([ tittle ])) {
             errors.push({ text: 'Please write a tittle' });
         }
@@ -91,8 +91,8 @@ const createMenu = async (req, res) => {
         } else { 
             const data = await pool.query(dbQueriesMenu.createMenu, [ tittle, new Date(), parent, userId ]);
                             
-            (data)
-            ? res.json(newReponse('Menu created', 'Success', { }))
+            (data.rowCount > 0)
+            ? res.json(newReponse('Menu created', 'Success', { id: data.rows[0].sub_menu_ide }))
             : res.json(newReponse('Error create menu', 'Error', { }));
         }
 

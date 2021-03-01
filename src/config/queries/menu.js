@@ -2,7 +2,8 @@ const table = 'sub_menu';
 
 module.exports = {
     // Insert
-    createMenu: `INSERT INTO ${ table } (sub_menu_tit, sub_menu_dat, parent_sub_menu_ide, user_ide) VALUES ($1, $2, $3, $4)`,
+    createMenu: `INSERT INTO ${ table } (sub_menu_tit, sub_menu_dat, parent_sub_menu_ide, user_ide) VALUES ($1, $2, $3, $4) 
+    RETURNING sub_menu_ide`,
     
     
     // Select
