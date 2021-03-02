@@ -11,6 +11,7 @@ module.exports = {
    getAllResponses: `SELECT * FROM ${ table }`,
    getResponseById: `SELECT * FROM ${ table } WHERE user_ide = $1 AND input_form_ide = $2`,
    checkResponseByInput: `SELECT * FROM ${ table } WHERE input_form_ide = $1`,
+   checkResponseByUserId: `SELECT * FROM ${ table } WHERE user_ide = $1`,
    
    
    // Update

@@ -32,24 +32,34 @@ const dataToResponse = (rows) => {
 // Logic
 const createResponses = async (req, res) => {
     const { responses, userId, formId } = req.body;
+    const check = await pool.query(dbQueriesRes.getResponseById, [ userId, responses[0].inputId ]);
     const client  = await pool.connect();
 
-    try {
-        await client.query('BEGIN');
-        responses.forEach( async (response)  => { 
-            const responseAux = [ response.data, new Date(), userId, response.inputId, formId ];
-            await pool.query(dbQueriesRes.createResponse, responseAux);    
-        });
-        
-        await client.query('COMMIT'); 
-        res.json(newReponse('Responses created successfully', 'Success', { }));
-
-    } catch(errors) { 
-        await client.query('ROLLBACK');
-        res.json(newReponse('Error on inserts responses', 'Fail', { errors }));
+    if(!check) {
+        res.json(newReponse('Error searching responses by user', 'Error', { }));
     
-    } finally {
-        client.release(); 
+    } else {
+        if(check.rowCount > 0) {
+            res.json(newReponse('The user has already made this form.', 'Error', { }));
+        } else {
+            try {
+                await client.query('BEGIN');
+                responses.forEach( async (response)  => { 
+                    const responseAux = [ response.data, new Date(), userId, response.inputId, formId ];
+                    await client.query(dbQueriesRes.createResponse, responseAux);    
+                });
+                
+                await client.query('COMMIT'); 
+                res.json(newReponse('Responses created successfully', 'Success', { }));
+        
+            } catch(errors) { 
+                await client.query('ROLLBACK');
+                res.json(newReponse('Error on inserts responses', 'Fail', { errors }));
+            
+            } finally {
+                client.release(); 
+            }
+        }
     }
 }
 

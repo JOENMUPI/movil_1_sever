@@ -223,7 +223,7 @@ const deleteFormById = async (req, res) => {
         const formData = await pool.query(dBQueriesForm.deleteFormById, [ formId ]);
         
         if(formData) {
-            res.json(newReponse('Form deleted successfully', 'Error', { }));    
+            res.json(newReponse('Form deleted successfully', 'Success', { }));    
         } 
 
     } else {
