@@ -1,0 +1,216 @@
+CREATE SEQUENCE public.type_input_form_type_input_form_seq_1;
+
+CREATE TABLE public.type_input_form (
+                type_input_form_ide INTEGER NOT NULL DEFAULT nextval('public.type_input_form_type_input_form_seq_1'),
+                type_input_form_des VARCHAR NOT NULL,
+                CONSTRAINT type_input_form_pk PRIMARY KEY (type_input_form_ide)
+);
+
+
+ALTER SEQUENCE public.type_input_form_type_input_form_seq_1 OWNED BY public.type_input_form.type_input_form_ide;
+
+CREATE SEQUENCE public.gender_gender_ide_seq_1;
+
+CREATE TABLE public.gender (
+                gender_ide INTEGER NOT NULL DEFAULT nextval('public.gender_gender_ide_seq_1'),
+                gender_des VARCHAR NOT NULL,
+                CONSTRAINT gender_pk PRIMARY KEY (gender_ide)
+);
+
+
+ALTER SEQUENCE public.gender_gender_ide_seq_1 OWNED BY public.gender.gender_ide;
+
+CREATE SEQUENCE public.role_role_ide_seq_1;
+
+CREATE TABLE public.role (
+                role_ide INTEGER NOT NULL DEFAULT nextval('public.role_role_ide_seq_1'),
+                role_des VARCHAR NOT NULL,
+                CONSTRAINT role_pk PRIMARY KEY (role_ide)
+);
+
+
+ALTER SEQUENCE public.role_role_ide_seq_1 OWNED BY public.role.role_ide;
+
+CREATE SEQUENCE public.user_1_user_ide_seq;
+
+CREATE TABLE public.user_1 (
+                user_ide INTEGER NOT NULL DEFAULT nextval('public.user_1_user_ide_seq'),
+                user_nam VARCHAR NOT NULL,
+                user_pas VARCHAR NOT NULL,
+                user_age INTEGER NOT NULL,
+                user_ema VARCHAR NOT NULL,
+                role_ide INTEGER NOT NULL,
+                gender_ide INTEGER NOT NULL,
+                CONSTRAINT user_1_pk PRIMARY KEY (user_ide)
+);
+
+
+ALTER SEQUENCE public.user_1_user_ide_seq OWNED BY public.user_1.user_ide;
+
+CREATE SEQUENCE public.sub_menu_sub_menu_ide_seq;
+
+CREATE TABLE public.sub_menu (
+                sub_menu_ide INTEGER NOT NULL DEFAULT nextval('public.sub_menu_sub_menu_ide_seq'),
+                sub_menu_tit VARCHAR NOT NULL,
+                Parent_sub_menu_ide INTEGER,
+                user_ide INTEGER NOT NULL,
+                sub_menu_dat TIMESTAMP NOT NULL,
+                CONSTRAINT sub_menu_pk PRIMARY KEY (sub_menu_ide)
+);
+
+
+ALTER SEQUENCE public.sub_menu_sub_menu_ide_seq OWNED BY public.sub_menu.sub_menu_ide;
+
+CREATE SEQUENCE public.form_form_ide_seq_1;
+
+CREATE TABLE public.form (
+                form_ide INTEGER NOT NULL DEFAULT nextval('public.form_form_ide_seq_1'),
+                form_tit VARCHAR NOT NULL,
+                user_ide INTEGER NOT NULL,
+                sub_menu_ide INTEGER NOT NULL,
+                form_dat TIMESTAMP NOT NULL,
+                CONSTRAINT form_pk PRIMARY KEY (form_ide)
+);
+
+
+ALTER SEQUENCE public.form_form_ide_seq_1 OWNED BY public.form.form_ide;
+
+CREATE SEQUENCE public.section_form_section_form_ide_seq;
+
+CREATE TABLE public.section_form (
+                section_form_ide INTEGER NOT NULL DEFAULT nextval('public.section_form_section_form_ide_seq'),
+                form_ide INTEGER NOT NULL,
+                section_form_tit VARCHAR NOT NULL,
+                section_form_des VARCHAR,
+                CONSTRAINT section_form_pk PRIMARY KEY (section_form_ide)
+);
+
+
+ALTER SEQUENCE public.section_form_section_form_ide_seq OWNED BY public.section_form.section_form_ide;
+
+CREATE SEQUENCE public.question_question_ide_seq_1;
+
+CREATE TABLE public.question (
+                question_ide INTEGER NOT NULL DEFAULT nextval('public.question_question_ide_seq_1'),
+                section_form_ide INTEGER NOT NULL,
+                question_obl BOOLEAN NOT NULL,
+                question_tit VARCHAR NOT NULL,
+                type_input_form_ide INTEGER NOT NULL,
+                CONSTRAINT question_pk PRIMARY KEY (question_ide)
+);
+
+
+ALTER SEQUENCE public.question_question_ide_seq_1 OWNED BY public.question.question_ide;
+
+CREATE SEQUENCE public.input_form_input_form_seq;
+
+CREATE TABLE public.input_form (
+                input_form_ide INTEGER NOT NULL DEFAULT nextval('public.input_form_input_form_seq'),
+                input_form_txt VARCHAR,
+                question_ide INTEGER NOT NULL,
+                CONSTRAINT input_form_pk PRIMARY KEY (input_form_ide)
+);
+
+
+ALTER SEQUENCE public.input_form_input_form_seq OWNED BY public.input_form.input_form_ide;
+
+CREATE TABLE public.response_form (
+                input_form_ide INTEGER NOT NULL,
+                user_ide INTEGER NOT NULL,
+                response_form_jso JSON,
+                response_dat TIMESTAMP NOT NULL,
+                form_ide INTEGER NOT NULL,
+                CONSTRAINT response_form_pk PRIMARY KEY (input_form_ide, user_ide)
+);
+
+
+ALTER TABLE public.question ADD CONSTRAINT type_input_form_question_fk
+FOREIGN KEY (type_input_form_ide)
+REFERENCES public.type_input_form (type_input_form_ide)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.user_1 ADD CONSTRAINT gender_user_1_fk
+FOREIGN KEY (gender_ide)
+REFERENCES public.gender (gender_ide)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.user_1 ADD CONSTRAINT role_user_1_fk
+FOREIGN KEY (role_ide)
+REFERENCES public.role (role_ide)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.form ADD CONSTRAINT user_form_fk
+FOREIGN KEY (user_ide)
+REFERENCES public.user_1 (user_ide)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.sub_menu ADD CONSTRAINT user_1_sub_menu_fk
+FOREIGN KEY (user_ide)
+REFERENCES public.user_1 (user_ide)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.response_form ADD CONSTRAINT user_1_response_form_fk
+FOREIGN KEY (user_ide)
+REFERENCES public.user_1 (user_ide)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.sub_menu ADD CONSTRAINT sub_menu_sub_menu_fk
+FOREIGN KEY (Parent_sub_menu_ide)
+REFERENCES public.sub_menu (sub_menu_ide)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.form ADD CONSTRAINT sub_menu_form_fk
+FOREIGN KEY (sub_menu_ide)
+REFERENCES public.sub_menu (sub_menu_ide)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.section_form ADD CONSTRAINT form_section_from_fk
+FOREIGN KEY (form_ide)
+REFERENCES public.form (form_ide)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.response_form ADD CONSTRAINT form_response_form_fk
+FOREIGN KEY (form_ide)
+REFERENCES public.form (form_ide)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.question ADD CONSTRAINT section_from_question_fk
+FOREIGN KEY (section_form_ide)
+REFERENCES public.section_form (section_form_ide)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.input_form ADD CONSTRAINT question_input_form_fk
+FOREIGN KEY (question_ide)
+REFERENCES public.question (question_ide)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.response_form ADD CONSTRAINT input_form_response_form_fk
+FOREIGN KEY (input_form_ide)
+REFERENCES public.input_form (input_form_ide)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;

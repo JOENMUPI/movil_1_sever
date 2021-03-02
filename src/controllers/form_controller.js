@@ -37,6 +37,7 @@ const dataToQuestion = (question, inputs) => {
     return { 
         obligatory: question.question_obl,
         tittle: question.question_tit,
+        type: question.type_input_form_des,
         id: question.question_ide,
         inputs: inputs
     };
@@ -48,7 +49,6 @@ const dataToInput = (rows) => {
     rows.forEach(element => {
         inputs.push({  
             message: element.input_form_txt,
-            type: element.type_input_form_des,
             id: element.input_form_ide,
         });
     });
@@ -186,21 +186,19 @@ const createForm = async (req, res) => {
             const sectionData = await client.query(dbQueriesSection.createSection, sectionAux);
             
             section.questions.forEach(async (question) => { 
-                const questionAux = [ question.tittle, question.obligatory, sectionData.rows[0].section_form_ide ];
-                const questionData = await client.query(dbQueriesQuestion.createQuestion, questionAux);
+                const typeInputId = await pool.query(dbQueriesTypeInput.getTypeInputByDescription, [ question.type ]);
+                
+                if(typeInputId) { 
+                    const questionAux = [ question.tittle, question.obligatory, sectionData.rows[0].section_form_ide, typeInputId.rows[0].type_input_form_ide ];
+                    const questionData = await client.query(dbQueriesQuestion.createQuestion, questionAux);
 
-                question.inputs.forEach(async (input) => { 
-                    const typeInputId = await pool.query(dbQueriesTypeInput.getTypeInputByDescription, [ input.type ]);
-                                    
-                    if(typeInputId) { 
-                        const inputAux = [ input.message, typeInputId.rows[0].type_input_form_ide, questionData.rows[0].question_ide ];
-                        
-                        await pool.query(dbQueriesInput.createInput, inputAux);
-
-                    } else { 
-                        res.json(newReponse('Error searching TI id', 'Error', { }));        
-                    }
-                });
+                    question.inputs.forEach(async (input) => {   
+                        await client.query(dbQueriesInput.createInput, [ input.message, questionData.rows[0].question_ide ]);
+                    });
+                    
+                } else {
+                    res.json(newReponse('Error searching TI id', 'Error', { }));
+                }
             });
         });
 

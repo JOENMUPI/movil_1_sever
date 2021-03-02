@@ -2,18 +2,13 @@ const table = 'input_form';
 
 module.exports = {
     // Insert
-    createInput: `INSERT INTO ${ table } (input_form_txt, type_input_form_ide, question_ide) VALUES ($1, $2, $3)`,
+    createInput: `INSERT INTO ${ table } (input_form_txt, question_ide) VALUES ($1, $2)`,
     
     
     // Select
-    getAllInputs: `SELECT if.*, tif.type_input_form_des FROM ${ table } AS if 
-    JOIN type_input_form AS tif ON tif.type_input_form_ide = if.type_input_form_ide`,
-    getInputById: `SELECT if.*, tif.type_input_form_des FROM ${ table } AS if 
-    JOIN type_input_form AS tif ON tif.type_input_form_ide = if.type_input_form_ide WHERE if.input_form_ide = $1`,
-    getInputsByQuestion: `SELECT if.*, tif.type_input_form_des FROM ${ table } AS if 
-    JOIN type_input_form AS tif ON tif.type_input_form_ide = if.type_input_form_ide WHERE if.question_ide = $1`,
-    getInputsByType:`SELECT if.*, tif.type_input_form_des FROM ${ table } AS if 
-    JOIN type_input_form AS tif ON tif.type_input_form_ide = if.type_input_form_ide WHERE if.type_input_form_ide = $1`,
+    getAllInputs: `SELECT * FROM ${ table }`,
+    getInputById: `SELECT * FROM ${ table } WHERE input_form_ide = $1`,
+    getInputsByQuestion: `SELECT * FROM ${ table } WHERE question_ide = $1`,
     
     
     // Update
