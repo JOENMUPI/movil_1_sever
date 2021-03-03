@@ -4,6 +4,7 @@ const dbQueriesRes = require('../config/queries/response');
 const dbQueriesSection = require('../config/queries/section');
 const dbQueriesQuestion = require('../config/queries/question');
 const dbQueriesInput = require('../config/queries/input');
+const dbQueriesForm = require('../config/queries/form');
 const auth = require('../utilities/auth');
 
 // Variables
@@ -15,17 +16,114 @@ const newReponse = (message, typeResponse, body) => {
     return { message, typeResponse, body }
 }
 
+const dataToForm = (form, sections) => {
+    return {  
+        tittle: form.form_tit,
+        id: form.form_ide,
+        sections
+    }
+}
+
+const dataToSection = (section, questions) => {
+    return {  
+        tittle: section.section_form_tit,
+        message: section.section_form_des,
+        id: section.section_form_ide,
+        questions
+    }
+}
+
+const dataToQuestion = (question, inputs) => {
+    return { 
+        obligatory: question.question_obl,
+        tittle: question.question_tit,
+        type: question.type_input_form_des,
+        id: question.question_ide,
+        inputs
+    };
+}
+
+const dataToInput = (input, responses) => {
+    return {
+        message: input.input_form_txt,
+        id: input.input_form_ide,
+        responses
+    }
+}
+
 const dataToResponse = (rows) => {
     const responses = [];
         
     rows.forEach(element => {
         responses.push({  
-            response: element.response_form_des,
-            id: element.response_form_ide,
+            response: element.response_form_jso.response,
         });
     });
 
     return responses;
+}
+
+const getReponsesWithinput = async (input) => {
+    const responseData = await pool.query(dbQueriesRes.checkResponseByInput, [ input.id ]);
+            
+    if(responseData.rowCount > 0) { 
+        input.responses = await dataToResponse(responseData.rows);
+        return input; 
+    
+    } else {
+        return null;
+    }
+}
+
+const getInputsWithQuestion = async (question) => {
+    const inputData = await pool.query(dbQueriesInput.getInputsByQuestion, [ question.id ]);
+    const inputs = [];
+
+    if(inputData.rowCount > 0) {
+        for(let i = 0; i < inputData.rowCount; i++) { 
+            inputs.push(await getReponsesWithinput(dataToInput(inputData.rows[i], [])));
+        } 
+        
+        question.inputs = inputs; 
+        return question;
+
+    } else {
+       return null; 
+    }
+}
+
+const getQuestionsWithSection = async (section) => {
+    const questionData = await pool.query(dbQueriesQuestion.getQuestionsBySection, [ section.id ]);
+    const questions = [];
+
+    if(questionData.rowCount > 0) { 
+        for(let i = 0; i < questionData.rowCount; i++) { 
+            questions.push(await getInputsWithQuestion(dataToQuestion(questionData.rows[i], [])));
+        } 
+        
+        section.questions = questions; 
+        return section;
+    
+    } else {
+        return null;
+    }
+}
+
+const getSectionsWithForm = async (form) => {
+    const sectionData = await pool.query(dbQueriesSection.getSectionsByForm, [ form.id ]);
+    const sections = [];
+
+    if(sectionData.rowCount > 0) {
+        for(let i = 0; i < sectionData.rowCount; i++) {
+            sections.push(await getQuestionsWithSection(dataToSection(sectionData.rows[i], [])));
+        }
+
+        form.sections = sections;
+        return form;
+
+    } else {
+        return null;
+    }
 }
 
 
@@ -65,55 +163,35 @@ const createResponses = async (req, res) => {
 
 const getDataByFormId = async (req, res) => {
     const { userId, formId } = req.params;
-    const responses = [];
+    let response = { userNum: 0, form: null };
 
     if (await auth.AuthAdmin(userId)) {
         const allUsers = await pool.query(dbQueriesRes.getAllUsersResponse, [ formId ]);
-        
+        const formData = await pool.query(dbQueriesForm.getFormById, [ formId ]);
 
         if(allUsers.rowCount <= 0) {
-
-        } else {
-
-        }
-
-
-
-        const sectionData = await pool.query(dbQueriesSection.getSectionsByForm, [ formId ]);
-
-        if(sectionData.rowCount <= 0) {
-            res.json(newReponse('Sections not found', 'Error', { }));
+            res.json(newReponse('This form not have responses', 'Error', { }));
         
         } else {
-            sectionData.rows.forEach(async (section) => {
-                const questionData = await pool.query(dbQueriesQuestion.getQuestionsBySection, [ section.section_form_ide ]);
-                
-                if(questionData.rowCount <= 0) {
-                    res.json(newReponse('Questions not found', 'Error', { }));
+            response.userNum = allUsers.rowCount;
 
-                } else { 
-                    questionData.rows.forEach(async (question) => {
-                        const inputData = await pool.query(dbQueriesInput.getInputsByQuestion, [ question.question_ide ]);
-                        
-                        if(inputData.rowCount <= 0) {
-                            res.json(newReponse('Inputs not found', 'Error', { }));
-                        
-                        } else {
-                            inputData.rows.forEach(async (input) => {
-                                const responseData = await pool.query(dbQueriesRes.checkResponseByInput, [ input ]);
-                                if(responseData.rowCount > 0) {
-                                    responses.push(dataToResponse(responseData.rows));
-                                } 
-                            });
-                        }
-                    });
+            if(!formData) {
+                res.json(newReponse('Error searshing form', 'Error', { }));
+            
+            } else {
+                if(formData.rowCount <= 0) {
+                    res.json(newReponse('Form not found', 'Success', { }));
+                
+                } else {
+                    response.form = await getSectionsWithForm(dataToForm(formData.rows[0], [])); 
+                    res.json(newReponse('Form found', 'Success', response));
                 }
-            });
+            }
         }
-    
+
     } else {
         res.json(newReponse('user not admin', 'Error', { }));
-    }
+    } 
 }
 
 // Export

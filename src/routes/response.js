@@ -6,7 +6,7 @@ const endPoint = '/response';
 
 
 // Get
-//router.get(`${ endPoint }/:formId`, form.getFormById);
+router.get(`${ endPoint }/:userId/:formId`, response.getDataByFormId);
 
 // Post
 router.post(endPoint, response.createResponses);

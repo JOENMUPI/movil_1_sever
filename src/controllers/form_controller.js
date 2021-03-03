@@ -172,45 +172,50 @@ const getFormByMenuId = async (req, res) => {
     }
 }
 
-
 const createForm = async (req, res) => {
     const { userId, menuId, form } = req.body;
-    const client = await pool.connect();
 
-    try {
-        await client.query('BEGIN');
-        const formData = await client.query(dBQueriesForm.createForm, [ form.tittle, new Date(), userId, menuId ]);
-        
-        form.sections.forEach(async (section) => { 
-            const sectionAux = [ section.tittle, section.message, formData.rows[0].form_ide ];
-            const sectionData = await client.query(dbQueriesSection.createSection, sectionAux);
+    if(await auth.AuthAdmin(userId)) {
+        const client = await pool.connect();
+
+        try {
+            await client.query('BEGIN');
+            const formData = await client.query(dBQueriesForm.createForm, [ form.tittle, new Date(), userId, menuId ]);
             
-            section.questions.forEach(async (question) => { 
-                const typeInputId = await pool.query(dbQueriesTypeInput.getTypeInputByDescription, [ question.type ]);
+            form.sections.forEach(async (section) => { 
+                const sectionAux = [ section.tittle, section.message, formData.rows[0].form_ide ];
+                const sectionData = await client.query(dbQueriesSection.createSection, sectionAux);
                 
-                if(typeInputId) { 
-                    const questionAux = [ question.tittle, question.obligatory, sectionData.rows[0].section_form_ide, typeInputId.rows[0].type_input_form_ide ];
-                    const questionData = await client.query(dbQueriesQuestion.createQuestion, questionAux);
-
-                    question.inputs.forEach(async (input) => {   
-                        await client.query(dbQueriesInput.createInput, [ input.message, questionData.rows[0].question_ide ]);
-                    });
+                section.questions.forEach(async (question) => { 
+                    const typeInputId = await pool.query(dbQueriesTypeInput.getTypeInputByDescription, [ question.type ]);
                     
-                } else {
-                    res.json(newReponse('Error searching TI id', 'Error', { }));
-                }
+                    if(typeInputId) { 
+                        const questionAux = [ question.tittle, question.obligatory, sectionData.rows[0].section_form_ide, typeInputId.rows[0].type_input_form_ide ];
+                        const questionData = await client.query(dbQueriesQuestion.createQuestion, questionAux);
+
+                        question.inputs.forEach(async (input) => {   
+                            await client.query(dbQueriesInput.createInput, [ input.message, questionData.rows[0].question_ide ]);
+                        });
+                        
+                    } else {
+                        res.json(newReponse('Error searching TI id', 'Error', { }));
+                    }
+                });
             });
-        });
 
-        await client.query('COMMIT');
-        res.json(newReponse('Form created successfully', 'Success', { }));
+            await client.query('COMMIT');
+            res.json(newReponse('Form created successfully', 'Success', { }));
 
-    } catch(errors) {
-        await client.query('ROLLBACK');
-        res.json(newReponse('Error on inserts', 'Fail', { errors }));
+        } catch(errors) {
+            await client.query('ROLLBACK');
+            res.json(newReponse('Error on inserts', 'Fail', { errors }));
 
-    } finally { 
-        client.release();
+        } finally { 
+            client.release();
+        }
+
+    } else {
+        res.json(newReponse('User not admin', 'Error', { }));
     }
 }
 
