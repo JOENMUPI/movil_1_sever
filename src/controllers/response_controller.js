@@ -172,8 +172,8 @@ const getDataByFormId = async (req, res) => {
         if(allUsers.rowCount <= 0) {
             res.json(newReponse('This form not have responses', 'Error', { }));
         
-        } else {
-            response.userNum = allUsers.rowCount;
+        } else { 
+            response.userNum = allUsers.rows[0].count;
 
             if(!formData) {
                 res.json(newReponse('Error searshing form', 'Error', { }));
